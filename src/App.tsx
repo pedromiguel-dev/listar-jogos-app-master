@@ -1,6 +1,7 @@
 import windows_logo from "./assets/microsoft-windows-22-logo-svgrepo-com.svg";
 import React from "react";
 import Skeleton from "./components/skeleton_cards";
+import { ResoladButton, Spining } from "./components/utils";
 
 export type game = {
   id: number;
@@ -15,6 +16,7 @@ export type game = {
   release_date: string;
   freetogame_profile_url: string;
 };
+
 
 
 export default function App() {
@@ -76,9 +78,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen overflow-y-auto flex flex-col items-center w-full px-5">
-      <h1 className="text-4xl font-black text-gray-800 my-10 w-full max-w-7xl ">
-        Games
-      </h1>
+      <div className="w-full h-min max-w-7xl flex items-center gap-5">
+        <h1 className="text-6xl font-black text-gray-800 my-10 ">
+          Games
+        </h1>
+        <div role="status" className="bg-white rounded-full p-2 hover:bg-gray-100 transition-all duration-300 cursor-pointer shadow-sm">
+          {games === null && !error ? <Spining />: <ResoladButton />}
+        </div>
+      </div>
       <GameList games={games} err={error} />
     </div>
   );
