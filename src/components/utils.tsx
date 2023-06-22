@@ -25,7 +25,7 @@ export const Spining = () => {
 export const ResoladButton = () => {
     return (
       <button onClick={() => window.location.reload()} className="flex flex-row gap-2 p-1 items-center ">
-        reload
+        <p className="hidden md:flex" >reload</p>
         <svg
           className="w-4 h-4 text-gray-200"
           xmlns="http://www.w3.org/2000/svg"

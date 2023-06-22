@@ -78,11 +78,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen overflow-y-auto flex flex-col items-center w-full px-5">
-      <div className="w-full h-min max-w-7xl flex items-center gap-5">
-        <h1 className="text-6xl font-black text-gray-800 my-10 ">
+      <div className="w-full h-min max-w-7xl flex items-center justify-between gap-5">
+        <h1 className="grow_font_size text-6xl font-black text-gray-800 my-10 ">
           Games
         </h1>
-        <div role="status" className="bg-white rounded-full p-2 hover:bg-gray-100 transition-all duration-300 cursor-pointer shadow-sm">
+        <div role="status" className="scale-90 md:scale-100 bg-white rounded-full p-2 hover:bg-gray-100 transition-all duration-300 cursor-pointer shadow-sm">
           {games === null && !error ? <Spining />: <ResoladButton />}
         </div>
       </div>

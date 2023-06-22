@@ -16,3 +16,7 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+.grow_font_size {
+    font-size: clamp(1.5rem, 10vw, 3.35rem);
+}
