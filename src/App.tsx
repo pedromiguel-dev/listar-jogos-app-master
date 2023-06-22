@@ -1,87 +1,251 @@
-//import reactLogo from './assets/react.svg';
-import React from "react"
+import windows_logo from "./assets/microsoft-windows-22-logo-svgrepo-com.svg";
+import React from "react";
 
 export type game = {
-    id: number,
-		title: string,
-		thumbnail: string,
-		short_description: string,
-		game_url: string,
-		genre: string,
-		platform: string,
-		publisher: string,
-		developer: string,
-		release_date: string,
-		freetogame_profile_url: string
+  id: number;
+  title: string;
+  thumbnail: string;
+  short_description: string;
+  game_url: string;
+  genre: string;
+  platform: string;
+  publisher: string;
+  developer: string;
+  release_date: string;
+  freetogame_profile_url: string;
+};
+
+enum Erros {
+  "NetworkError" = "NetworkError",
+  "TimeoutError" = "TimeoutError",
+  "AbortError" = "AbortError",
+  "UnknownError" = "UnknownError",
 }
 
-function App() {
-  const [ games , setGames ] = React.useState<game[] | null>(null)
+export default function App() {
+  const [error, setError] = React.useState<string | null>(null);
+  const [games, setGames] = React.useState<game[] | null>(null);
 
   React.useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      setError("O servidor demorou para responder, tente mais tarde.");
+      console.log("Fetch request timed out");
+    }, 5000);
+    const signal = controller.signal;
 
     const fetchData = async () => {
       try {
-        const response = await fetch('https://games-test-api-81e9fb0d564a.herokuapp.com/api/data', {
-          method: 'GET',
-          headers: {
-            "dev-email-address" : "pedro.miguel.e.idk@gmail.com"
-          },
-
-        });
+        const response = await fetch(
+          "https://games-test-api-81e9fb0d564a.herokuapp.com/api/data",
+          {
+            signal,
+            method: "GET",
+            headers: {
+              "dev-email-address": "pedro.miguel.e.idk@gmail.com",
+            },
+          }
+        );
+        console.log(response);
+        if (!response.ok) {
+          if (response.status >= 500 && response.status <= 509) {
+            clearTimeout(timeoutId);
+            setError(
+              " O servidor fahou em responder, tente recarregar a página"
+            );
+            return;
+          } else {
+            clearTimeout(timeoutId);
+            setError(
+              "O servidor não conseguirá responder por agora, tente voltar novamente mais tarde"
+            );
+            return;
+          }
+        }
+        clearTimeout(timeoutId);
         const result = await response.json();
         setGames(result);
-      } catch (error) {
-        console.error(error);
+      } catch (error: unknown) {
+        console.info(error);
       }
     };
 
     fetchData();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, []);
 
   return (
-    <div className="h-screen overflow-auto bg-gray-100
-    ">
-      <h1>Games</h1>
-      <ul className="
-          flex flex-wrap
-        ">
-        {games ? (
-          games.map((game) => (
-            <li key={game.id} className="
-              w-full p-2
-              md:w-1/2
-              2xl:w-1/4
-            ">
-              <div className="flex flex-wrap bg-white shadow-md rounded-lg p-4
-                w-full h-full ">
-                <img src={game.thumbnail} alt={game.title} loading="lazy" 
-                  className="
-                  object-cover object-center rounded-lg mb-4 
-                  md:w-50 md:h-100 md:mr-4
-                  md:m-0
-                  "
-                />
-                <div className="side
-                  
-                  flex flex-col justify-between
-                ">
-                  <h2 className="text-2xl font-bold text-gray-800">{game.title}</h2>
-                  <p className="text">{game.short_description}</p>
-                  <p>{game.genre}</p>
-                  <p>{game.platform}</p>
-                  <p>{game.publisher}</p>
-                  <p>{game.developer}</p>
-                  <p>{game.release_date}</p>
-                  <a href={game.freetogame_profile_url}>More info</a>
-                </div>
-              </div>
-            </li>
-          ))
-        ) : ( <li>Carregando...</li> )}
-      </ul>
+    <div className="overflow-y-auto flex flex-col items-center w-full px-5">
+      <h1 className="text-4xl font-bold text-gray-800 my-10 w-full max-w-7xl ">
+        Games
+      </h1>
+      <GameList games={games} err={error} />
     </div>
-  )
+  );
 }
 
-export default App
+type GameListProps = {
+  games: game[] | null;
+  err: string | null;
+};
+
+export function GameList({ games, err }: GameListProps) {
+  const formatDate = (string: string) => {
+    const date = new Date(string);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    return `${day}-${month}-${year}`;
+  };
+  if (err) {
+    return <p>{err}...</p>;
+  }
+
+  //return <Skeleton />;
+
+  return (
+    <ul
+      style={{ gridTemplateColumns: " repeat(auto-fill, minmax(270px, 1fr))" }}
+      className="grid gap-5 w-full max-w-7xl mb-20"
+    >
+      {games === null ? (
+        <Skeleton />
+      ) : (
+        games.map((game) => (
+          <li
+            key={game.id}
+            className="hover:scale-105 transition-all duration-300"
+          >
+            <div className="flex flex-col bg-white shadow-md rounded-lg p-4 w-full h-full max">
+              <img
+                src={game.thumbnail}
+                alt={game.title}
+                loading="lazy"
+                className="object-cover object-center rounded-lg mb-4"
+              />
+              <div
+                className="
+                  flex flex-col align-center mb-3
+                  w-full h-full 
+                "
+              >
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {game.title}
+                </h2>
+                <p className="text">
+                  {game.short_description} released on{" "}
+                  {formatDate(game.release_date)}{" "}
+                </p>
+              </div>
+              <p className="font-light uppercase text-sm px-1">{game.genre}</p>
+              <div className="flex flex-row justify-between pb-3 pt-0 px-1">
+                <p className="font-bold from-neutral-800 text-base">
+                  By {game.publisher}
+                </p>
+                {game.platform === "PC (Windows)" ? (
+                  <img
+                    src={windows_logo}
+                    alt="windows logo"
+                    className="inline-block w-6 h-6"
+                  />
+                ) : (
+                  <></>
+                )}
+              </div>
+              <a
+                href={game.freetogame_profile_url}
+                className="
+                    bg-blue-400 px-6 py-3 rounded-lg text-center text-white font-bold
+                    shadow-md
+                    hover:bg-blue-600 transition-colors duration-300
+                  "
+              >
+                More info
+              </a>
+            </div>
+          </li>
+        ))
+      )}
+    </ul>
+  );
+}
+
+export function Skeleton() {
+  const qnt: number[] = Array(12).fill(0);
+
+  return qnt.map((_, index) => (
+    <li key={index} className="hover:scale-105 transition-all duration-300">
+      <div className="flex flex-col bg-white shadow-md rounded-lg p-4 w-full h-full max">
+        <div role="status" className="animate-pulse w-full">
+          <div className="flex items-center justify-center w-full h-48 bg-gray-300 rounded dark:bg-gray-700">
+            <svg
+              className="w-12 h-12 text-gray-200"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 640 512"
+            >
+              <path d="M480 80C480 35.82 515.8 0 560 0C604.2 0 640 35.82 640 80C640 124.2 604.2 160 560 160C515.8 160 480 124.2 480 80zM0 456.1C0 445.6 2.964 435.3 8.551 426.4L225.3 81.01C231.9 70.42 243.5 64 256 64C268.5 64 280.1 70.42 286.8 81.01L412.7 281.7L460.9 202.7C464.1 196.1 472.2 192 480 192C487.8 192 495 196.1 499.1 202.7L631.1 419.1C636.9 428.6 640 439.7 640 450.9C640 484.6 612.6 512 578.9 512H55.91C25.03 512 .0006 486.1 .0006 456.1L0 456.1z" />
+            </svg>
+          </div>
+          <span className="sr-only">Loading...</span>
+        </div>
+        <div
+          className="
+              flex flex-col align-center mb-3
+              w-full h-full 
+            "
+        >
+          <div role="status" className="max-w-sm animate-pulse">
+            <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 my-4 py-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"></div>
+            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+        <div className="w-24 flex px-1">
+          <div className="w-full h-2.5 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+        </div>
+        <div className="flex flex-row gap-10 justify-between items-center py-3 pt-0 px-1">
+          <div className="w-80 h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 "></div>
+          <div role="status">
+            <svg
+              aria-hidden="true"
+              className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+        <a
+          className="
+              bg-gray-200 rounded-full dark:bg-gray-700 px-6 py-3 rounded-md text-center text-white font-bold
+                shadow-md
+              "
+        >
+          Carregando
+        </a>
+      </div>
+    </li>
+  ));
+}
