@@ -1,7 +1,7 @@
-import windows_logo from "./assets/microsoft-windows-22-logo-svgrepo-com.svg";
 import React from "react";
-import Skeleton from "./components/skeleton_cards";
+import { SkeletonPills, SkeletonCards} from "./components/SkeletonCards";
 import { ResoladButton, Spining } from "./components/utils";
+import Card from "./components/Card";
 
 export type game = {
   id: number;
@@ -22,6 +22,8 @@ export type game = {
 export default function App() {
   const [error, setError] = React.useState<string | null>(null);
   const [games, setGames] = React.useState<game[] | null>(null);
+  const [genres, setGenres] = React.useState<Set<string> | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -34,6 +36,8 @@ export default function App() {
 
     const fetchData = async () => {
       try {
+        console.log("fetching data", loading);
+        
         const response = await fetch(
           "https://games-test-api-81e9fb0d564a.herokuapp.com/api/data",
           {
@@ -62,19 +66,37 @@ export default function App() {
         }
         clearTimeout(timeoutId);
         const result = await response.json();
+        const genres = result.map((game: game) => game.genre);
+
+        setGenres(() => {
+          const uniqueGenres = new Set<string>([...genres]);
+          console.log(uniqueGenres);
+          return uniqueGenres;
+        });
         setGames(result);
+        setLoading(false);
       } catch (error: unknown) {
         console.info(error);
+        
       }
     };
 
     fetchData();
 
     return () => {
+      setLoading(true);
+      setError(null);
+      setGames(null);
+      setGenres(null);
       clearTimeout(timeoutId);
       controller.abort();
     };
   }, []);
+
+  const ErroMessage = () => {
+    return <div className=" text-center text-2xl font-semibold m-10 p-10 bg-white rounded-lg shadow-md flex justify-center">{error}...</div> 
+  }
+
 
   return (
     <div className="min-h-screen overflow-y-auto flex flex-col items-center w-full px-5">
@@ -86,94 +108,39 @@ export default function App() {
           {games === null && !error ? <Spining />: <ResoladButton />}
         </div>
       </div>
-      <GameList games={games} err={error} />
+      <div className="w-full h-min max-w-7xl flex items-center justify-between gap-5">
+        {genres === null ? (
+          <SkeletonPills />
+        ) : (
+          <div className="flex flex-wrap gap-4 mb-5 pb-1 py-10
+          scrollbar-hide justify-center md:justify-start
+          ">
+            {Array.from(genres).map((genre) => (
+              <button
+                key={genre}
+                className="bg-white rounded-full min-w-max p-3 hover:bg-gray-100 transition-all duration-300 cursor-pointer shadow-sm"
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
+       )}
+      </div>
+      {error ? <ErroMessage /> : loading ? (
+          <ul
+            style={{ gridTemplateColumns: " repeat(auto-fill, minmax(270px, 1fr))" }}
+            className="grid gap-5 w-full max-w-7xl mb-20"
+            >
+            <SkeletonCards />
+          </ul>
+          ) : (
+          <ul
+            style={{ gridTemplateColumns: " repeat(auto-fill, minmax(270px, 1fr))" }}
+            className="grid gap-5 w-full max-w-7xl mb-20"
+            >
+            <Card games={games} />
+          </ul>
+        )}
     </div>
-  );
-}
-
-type GameListProps = {
-  games: game[] | null;
-  err: string | null;
-};
-
-export function GameList({ games, err }: GameListProps) {
-  const formatDate = (string: string) => {
-    const date = new Date(string);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-
-    return `${day}/${month}/${year}`;
-  };
-
-  if (err) {
-    return <div className=" text-center text-2xl font-semibold m-10 p-10 bg-white rounded-lg shadow-md flex justify-center">{err}...</div>;
-  }
-  return (
-    <ul
-      style={{ gridTemplateColumns: " repeat(auto-fill, minmax(270px, 1fr))" }}
-      className="grid gap-5 w-full max-w-7xl mb-20"
-    >
-      {games === null ? (
-        <Skeleton />
-      ) : (
-        games.map((game) => (
-          <li
-            key={game.id}
-            className=" hover:scale-95 md:hover:scale-105 transition-all duration-300"
-          >
-            <div className="flex flex-col bg-white shadow-md rounded-lg p-4 w-full h-full max">
-              <img
-                src={game.thumbnail}
-                alt={game.title}
-                loading="lazy"
-                className="object-cover object-center rounded-md mb-4 aspect-video"
-              />
-              <div
-                className="
-                  flex flex-col align-center mb-3
-                  w-full h-full 
-                "
-              >
-                <h2 className="text-2xl font-black text-gray-900">
-                  {game.title}
-                </h2>
-                <p className="text ">
-                  {game.short_description} Released on{" "}
-                  {formatDate(game.release_date)}.
-                </p>
-              </div>
-              <p className="font-light uppercase text-sm px-1">{game.genre}</p>
-              <div className="flex flex-row justify-between pb-3 pt-0 px-1">
-                <p className="font-bold from-neutral-800 text-base">
-                  By {game.publisher}
-                </p>
-                {game.platform === "PC (Windows)" ? (
-                  <img
-                    src={windows_logo}
-                    alt="windows logo"
-                    className="inline-block w-6 h-6"
-                  />
-                ) : (
-                  <></>
-                )}
-              </div>
-              <a
-                href={game.freetogame_profile_url}
-                className="
-                    bg-blue-500 px-6 py-3 rounded-lg text-center text-white font-bold
-                    shadow-md
-                    hover:bg-blue-600
-                    hover:border-blue-600
-                    transition-colors duration-300
-                  "
-              >
-                More info
-              </a>
-            </div>
-          </li>
-        ))
-      )}
-    </ul>
   );
 }

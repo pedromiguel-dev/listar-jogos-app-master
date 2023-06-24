@@ -1,11 +1,11 @@
-export default function Skeleton() {
+export function SkeletonCards() {
     const qnt: number[] = Array(12).fill(0);
   
     return qnt.map((_, index) => (
       <li key={index} className="hover:scale-105 transition-all duration-300">
         <div className="flex flex-col bg-white shadow-md rounded-lg p-4 w-full h-full max">
           <div role="status" className="animate-pulse w-full">
-            <div className="flex items-center justify-center w-full h-48 bg-gray-300 rounded dark:bg-gray-700">
+            <div className="flex items-center justify-center w-full h-48 bg-gray-300 rounded dark:bg-gray-400">
               <svg
                 className="w-12 h-12 text-gray-200"
                 xmlns="http://www.w3.org/2000/svg"
@@ -25,20 +25,20 @@ export default function Skeleton() {
               "
           >
             <div role="status" className="max-w-sm animate-pulse">
-              <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 my-4 py-2"></div>
-              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
-              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
-              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
-              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"></div>
-              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+              <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-400 w-48 my-4 py-2"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-400 max-w-[360px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-400 mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-400 max-w-[330px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-400 max-w-[300px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-400 max-w-[360px]"></div>
               <span className="sr-only">Loading...</span>
             </div>
           </div>
           <div className="w-24 flex px-1">
-            <div className="w-full h-2.5 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+            <div className="w-full h-2.5 bg-gray-200 rounded-full dark:bg-gray-400"></div>
           </div>
           <div className="flex flex-row gap-10 justify-between items-center py-3 pt-0 px-1">
-            <div className="w-80 h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 "></div>
+            <div className="w-80 h-2.5 bg-gray-200 rounded-full dark:bg-gray-400 "></div>
             <div role="status">
               <svg
                 aria-hidden="true"
@@ -61,7 +61,7 @@ export default function Skeleton() {
           </div>
           <a
             className="
-                bg-gray-200 rounded-full dark:bg-gray-700 px-6 py-3 rounded-md text-center text-white font-bold
+                bg-gray-200 rounded-full dark:bg-gray-400 px-6 py-3 rounded-md text-center text-white font-bold
                   shadow-md
                 "
           >
@@ -70,4 +70,20 @@ export default function Skeleton() {
         </div>
       </li>
     ));
-  }
+}
+
+export function SkeletonPills () {
+  const qnt: number[] = Array(12).fill(0);
+  return <div className="w-full h-min max-w-7xl flex items-center justify-between gap-5">
+            <div className="flex flex-wrap gap-4 mb-5 pb-1 py-10
+            scrollbar-hide justify-center md:justify-start
+            ">
+              {qnt.map((_, index) => (
+                  <div role="status" className="animate-pulse" key={index}>
+                    <div className="h-10 bg-gray-200 rounded-full dark:bg-gray-400 w-24 p-3"></div>
+                    <span className="sr-only">Loading...</span>
+                  </div>
+              ))}
+            </div>
+        </div>
+}
