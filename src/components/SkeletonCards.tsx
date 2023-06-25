@@ -1,7 +1,12 @@
 export function SkeletonCards() {
     const qnt: number[] = Array(12).fill(0);
   
-    return qnt.map((_, index) => (
+    return (
+    <ul
+        style={{ gridTemplateColumns: " repeat(auto-fill, minmax(270px, 1fr))" }}
+        className="grid gap-5 w-full max-w-7xl mb-20"
+    >
+    {qnt.map((_, index) => (
       <li key={index} className="hover:scale-105 transition-all duration-300">
         <div className="flex flex-col bg-white shadow-md rounded-lg p-4 w-full h-full max">
           <div role="status" className="animate-pulse w-full">
@@ -69,13 +74,14 @@ export function SkeletonCards() {
           </a>
         </div>
       </li>
-    ));
+    ))}
+    </ul>
+  );
 }
 
 export function SkeletonPills () {
   const qnt: number[] = Array(12).fill(0);
-  return <div className="w-full h-min max-w-7xl flex items-center justify-between gap-5">
-            <div className="flex flex-wrap gap-4 mb-5 pb-1 py-10
+  return <div className="flex flex-wrap gap-4 mb-5 pb-1 py-10
             scrollbar-hide justify-center md:justify-start
             ">
               {qnt.map((_, index) => (
@@ -85,5 +91,4 @@ export function SkeletonPills () {
                   </div>
               ))}
             </div>
-        </div>
 }
