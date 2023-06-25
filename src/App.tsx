@@ -18,7 +18,7 @@ export type game = {
 };
 
 export default function App() {
-  const inputQuery = React.useRef<HTMLInputElement>();
+  const inputQuery = React.useRef<HTMLInputElement>(null);
 
   const [error, setError] = React.useState<string | null>(null);
   const [games, setGames] = React.useState<game[] | null>(null);

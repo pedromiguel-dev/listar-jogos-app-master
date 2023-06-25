@@ -10,7 +10,7 @@ type PillFilterProps = {
   };
   
   export default function PillFilter(props: PillFilterProps) {
-    const { loading, genres, filteredGames, filteredGenre, setGenre } = props;
+    const { loading, genres, filteredGenre, setGenre } = props;
   
     if (loading) {
       return <SkeletonPills />;
@@ -27,7 +27,7 @@ type PillFilterProps = {
             "
       >
         
-        {Array.from(genres).map((genre, index) => (
+        {Array.from(genres).map((genre) => (
           <button
             key={genre}
             onClick={() => {
